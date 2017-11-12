@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="box">
+        <div class="col-lg-12 text-center">
+		  <div class="flash">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  {{ message | safe }}
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+         </div>
+		 </br>
+		<h1>Create Your Account to Make a Travel WounderList</h1>
+         <h2 class="form-text">Sign Up</h2>
+         <form action="{{ url_for('signup')  }}" method="post" name="signup">
+           <label for="username" class="sr-only">Username</label>
+           <input type="username" name="username" id="username" class="form-control" placeholder="Username" value="{{ request.form.username }}" required autofocus>
+		   
+		   <label for="email" class="sr-only">Email Address</label>
+           <input type="email" name="email" id="email" class="form-control" placeholder="Email address" required autofocus>
+
+           <label for="Password" class="sr-only">Password</label>
+           <input type="password" name="password" id="password" class="form-control" placeholder="Password" value="{{ request.form.password }}" required>
+    
+           <button type="submit" name="submit" id="Submit" value="Signin" class="btn btn-lg btn-primary btn-block">Submit</button>
+         </form>
+          {% if error %}
+            <p class="error"><strong>Error:</strong> {{ error }}
+          {% endif %}
+          </br>
+		  <p>Have an Account? Sign In</p>
+          <form action="{{ url_for('signin') }}" method="GET">
+             <button type="submit" name="submit" id="Submit" class"btn btn-lg btn-primary btn-block">Sign Up</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

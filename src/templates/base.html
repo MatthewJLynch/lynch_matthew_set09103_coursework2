@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<!-- Title -->
+	{% if title %}
+    <title>{{ title }} | Wunderlust</title>
+    {% else %}
+    <title>Welcome</title>
+    {% endif %}
+	
+	<meta name="description" content="Wunderlust Travel">
+    <meta name="author" content="Matthew Lynch 40322639">
+	
+	<!-- Links -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}"
+    rel="stylesheet"/>
+	<link href="{{ url_for('static', filename='css/stylesheet.css')}}"
+    rel="stylesheet"/>
+	<link href="{{ url_for('static', filename='favicon.ico') }}"
+	rel="shortcut icon"/>
+	
+ </head>
+
+<body>
+	
+<!-- Nav -->
+       <nav class="navbar navbar-default" role="navigation">
+   	  <div class="container">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-brand-centered">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <div class="navbar-brand navbar-brand-centered">Wunderlust</div>
+	    </div>
+
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="navbar-brand-centered">
+	      <ul class="nav navbar-nav">
+	        <li><a href="/">Home</a></li>
+	        <li><a href="/about">About Me</a></li>
+	      </ul>
+	      <ul class="nav navbar-nav navbar-right">
+	        <li><a href="/signin">Sign In</a></li>
+	        <li><a href="/signup">Sign Up</a></li>
+		        
+	      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+	
+  <!-- content blocks that are placed within the templates that inherit from the base template -->
+ {% block content %}
+
+ {% endblock %}
+ 
+ <!-- Scripts -->
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+ <script src={{ url_for('static', filename='js/bootstrap.min.js') }}></script>
+ 
+  <!-- Footer -->
+  <div id="footer">
+    <p>Matthew Lynch | SET09103 | Advanced Web Technologies</p>
+  </div>
+ </div>
+ 
+</body>
+</html>
