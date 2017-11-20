@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <div class="container">
+	<h1>Sign In to View Your WunderList</h1>
+      <h2 class="form-text">Create Your Account Here!</h2>
+<form action="/login" method="post">
+        <input type="text" placeholder="Username" name="username" value="{{
+          request.form.username }}">
+         <input type="password" placeholder="Password" name="password" value="{{
+          request.form.password }}">
+        <input class="btn btn-default" type="submit" value="Login">
+      </form>
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+	  </br>
+	  <div class="flash">
+         {% with messages = get_flashed_messages() %}
+           {% if messages %}
+             {% for message in messages %}
+               {{ message | safe }}
+             {% endfor %}
+           {% endif %}
+         {% endwith %}
+       </div>
+	  
+  </div>
+  
+{% endblock %}
