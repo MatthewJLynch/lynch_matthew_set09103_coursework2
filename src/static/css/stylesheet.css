@@ -10,7 +10,7 @@
     background: url(../static/img/background.jpg) no-repeat center center fixed;
   }
   .brand {
-	color: #262626;
+	color: #efefef;
   }
   .form-text {
     font-family: 'Overlock', cursive;
@@ -25,22 +25,30 @@
  
 /** Nav Style **/
 .navbar-brand {
-	color: #000;
+	color: #efefef;
 	font-size: 36px;
 }
 
+.navbar-default .navbar-brand {
+    color: #efefef;
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: #efefef;
+}
+
 .navbar-nav, a {
-	color: #000;
+	color: #efefef;
 }
 .navbar-nav, a:hover {
-	color: #4c4c4c;
+	color: #efefef;
 }
 
 .navbar {
 	font-family: 'Amatic SC', cursive;
 	font-size: 28px;
 	padding: 24px;
-	background-color: rgba(255,255,255, 0.5);
+	background-color: rgba(86, 131, 164, 0.5);
     margin-bottom: 0px;
     border: 0px solid transparent;
 }
@@ -115,11 +123,12 @@ p{
   font-family: 'Overlock', cursive;
 }
 
-#content{
+content{
   padding:100px 50px;
   text-align:center;
   width:80%;
   margin:0px auto;
+
 }
 
 #content h2{
@@ -130,7 +139,7 @@ p{
 
 .form-control {
     display: block;
-    width: 100%;
+    width: 96%;
     height: 34px;
     padding: 32px 22px;
 	margin: 20px;
@@ -163,7 +172,9 @@ p{
 
 /** Footer Style **/
 #footer{
+  position: absolute; 
+  left: 0 ; right: 0; bottom: 0;
   padding:30px 0px;
   text-align:center;
-  background-color: rgba(255,255,255, 0.5);
+  background-color: rgba(86, 131, 164, 0.5);
 }

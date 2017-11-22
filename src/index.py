@@ -1,47 +1,67 @@
-from flask import Flask, render_template, redirect, url_for, request, g, session, flash
+from flask import Flask, render_template, redirect, url_for, request, abort, g, session, flash
 from functools import wraps
+from hashlib import md5
+import sqlite3 as sql
 import sqlite3
-import hashlib
 import os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+db_location = 'var/bucket_list.db'
 
-
-# To convert the user input password as MD5
-def check_password(hashed_password, user_password):
-    return hashed_password == hashlib.md5(user_password.encode()).hexdigest()	
-
-# Takes the inputed username and passwords as arguments, and compare them against the users table
-def validate(username, password):
-    con = sqlite3.connect("var/data.db")
-    completion = False
-    with con:
-                cur = con.cursor()
-                cur.execute("SELECT * FROM Users")
-                rows = cur.fetchall()
-                for row in rows:
-                    dbUser = row[1]
-                    dbPass = row[2]
-                    if dbUser == username:
-                        completion = check_password(dbPass, password)
-    return completion
-
-def init_db():
-	with app.app_context():
-		con = sqlite3.connect("var/data.db")
-		with app.open_resource("var/schema.sql", mode="r") as f:
-			con.cursor().executescript(f.read())
-		con.commit()
-		
+# Session and redirect to login page 
 def required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
-        status = session.get("username", False)
+        status = session.get('username', False)
         if not status:
-            return redirect(url_for("login"))
+            return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorator
+
+# Database 
+def get_db():
+    db = getattr(g, 'db', None)
+    if db is None:
+      db = sqlite3.connect(db_location)
+      g.db = db
+    return db
+
+# To convert the user input password as MD5
+def check_password(hashed_password, user_password):
+    return hashed_password == hashlib.md5(user_password.encode()).hexdigest()
+    print hashed_password	
+
+# Takes the inputed username and passwords as arguments, and compare them against the users table
+def validate(username, password):
+    db = sqlite3.connect(db_location)
+    complete = False
+    with db:
+        cur = db.cursor()
+
+        cur = db.execute("SELECT * FROM Users")
+        rows = cur.fetchall()
+        for row in rows:
+            userdb = row[0]
+            passdb = row[2]
+        if userdb == username:
+            complete = check_password(passdb, password)
+    return complete
+
+#init.db - database connection
+@app.teardown_appcontext
+def close_db_connection(exception):
+    db = getattr(g, 'db', None)
+    if db is not None:
+      db.close()
+def init_db():
+    with app.app_context():
+        db = get_db()
+        with app.open_resource('var/schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
+	
 	
 #The Homepage Route
 @app.route("/")
@@ -52,10 +72,10 @@ def index():
 @app.route("/dashboard")
 @required
 def dashboard():
-	con = sqlite3.connect("var/data.db")
-	cur = con.execute("SELECT title, day, desc FROM Bucketlist ORDER BY bucket_id desc")
-	bucketlist = [dict(title=row[1], day=row[2], desc=row[3]) for row in cur.fetchall()]
-	con.close()
+	db = get_db()
+	cur = db.execute("SELECT title, date, details FROM Bucketlist ORDER BY wish desc")
+	bucketlist = [dict(title=row[1], date=row[2], details=row[3]) for row in cur.fetchall()]
+	db.close()
 	return render_template("dashboard.html", title="Dashboard",  bucketlist=bucketlist)
   
 #The Login Route
@@ -84,28 +104,42 @@ def login():
 #The Adds to the List
 @app.route("/add", methods=["GET","POST"])
 def add():
-  if not session.get("username"):
+  if not session.get('username'):
       abort(401)
-  con = sqlite3.connect("var/data.db")
-  con.execute("INSERT INTO Bucketlist (title,day,desc) VALUES(?,?,?)", 
-            [request.form["title"], request.form["day"], request.form["desc"]])
-  con.commit()
+  db = get_db()
+  db.execute("INSERT INTO Bucketlist (title,date,details) VALUES(?,?,?)", 
+            [request.form["title"], request.form["date"], request.form["details"]])
+  db.commit()
   flash("Your Goal Has Been Added To Your List")
   return redirect(url_for("dashboard"))
 
 #The Removes from the List
 @app.route("/remove", methods=["GET"])
 def remove():
-  delete = request.args.get("bucket_id", "")
+  delete = request.args.get("wish", "")
   print delete
-  con = sqlite3.connect("var/data.db")
-  con.execute("DELETE FROM Bucketlist WHERE title=?", [delete])
-  con.commit()
-  cur = con.execute("select * from Bucketlist")
+  db = get_db()
+  db.execute("DELETE FROM Bucketlist WHERE title=?", [delete])
+  db.commit()
+  cur = db.execute("select * from Bucketlist")
   row = cur.fetchall()
   flash("Your Goal Has Been Removed From Your List")
   return render_template("dashboard.html",row=row)
 
+#Sign Up Route
+@app.route("/signup", methods=["GET","POST"])
+def signup():
+  error = None
+  if request.method == 'POST':
+    db = get_db()
+    cur = db.execute('INSERT INTO Users (username,password) VALUES(?,?)',
+                    [request.form['username'], request.form['password']])
+    db.commit()
+    return redirect(url_for('dashboard'))
+  else:
+    error = "Create A Profile."
+    return render_template('signup.html', error=error)
+  return render_template('signup.html')
   
 #Logs Out The User from Their Account
 @app.route("/logout")
