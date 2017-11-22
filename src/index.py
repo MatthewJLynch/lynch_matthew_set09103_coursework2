@@ -14,7 +14,7 @@ def check_password(hashed_password, user_password):
 
 # Takes the inputed username and passwords as arguments, and compare them against the users table
 def validate(username, password):
-    con = sqlite3.connect('var/data.db')
+    con = sqlite3.connect("var/data.db")
     completion = False
     with con:
                 cur = con.cursor()
@@ -29,91 +29,91 @@ def validate(username, password):
 
 def init_db():
 	with app.app_context():
-		con = sqlite3.connect('var/data.db')
-		with app.open_resource('var/schema.sql', mode='r') as f:
+		con = sqlite3.connect("var/data.db")
+		with app.open_resource("var/schema.sql", mode="r") as f:
 			con.cursor().executescript(f.read())
 		con.commit()
 		
 def required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
-        status = session.get('username', False)
+        status = session.get("username", False)
         if not status:
-            return redirect(url_for('login'))
+            return redirect(url_for("login"))
         return f(*args, **kwargs)
     return decorator
 	
 #The Homepage Route
 @app.route("/")
 def index():
-  return render_template('index.html', title='Home')
+  return render_template("index.html", title="Home")
   
 #The Dashboard Route	
-@app.route('/dashboard')
+@app.route("/dashboard")
 @required
 def dashboard():
-	con = sqlite3.connect('var/data.db')
-	cur = con.execute('SELECT title, day, desc FROM Bucketlist ORDER BY bucket_id desc')
+	con = sqlite3.connect("var/data.db")
+	cur = con.execute("SELECT title, day, desc FROM Bucketlist ORDER BY bucket_id desc")
 	bucketlist = [dict(title=row[1], day=row[2], desc=row[3]) for row in cur.fetchall()]
 	con.close()
-	return render_template('dashboard.html', title='Dashboard',  bucketlist=bucketlist)
+	return render_template("dashboard.html", title="Dashboard",  bucketlist=bucketlist)
   
 #The Login Route
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login/", methods=["GET", "POST"])
 def login():
     error = None
-#    if request.method == 'POST':
-#        username = request.form['username']
-#        password = request.form['password']
+#    if request.method == "POST":
+#        username = request.form["username"]
+#        password = request.form["password"]
 #        completion = validate(username, password)
 #        if completion == False:
-#            error = 'Invalid Credentials. Please try again.'
+#            error = "Invalid Credentials. Please try again."
 #        else:
-#            return redirect(url_for('dashboard'))
-#    return render_template('login.html', error=error)
+#            return redirect(url_for("dashboard"))
+#    return render_template("login.html", error=error)
 
-    if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-            error = 'Invalid Credentials. Please try again.'
+    if request.method == "POST":
+        if request.form["username"] != "admin" or request.form["password"] != "admin":
+            error = "Invalid Credentials. Please try again."
         else:
-		session['username'] = True
-		flash('Welcome! <username>')
-        return redirect(url_for('dashboard'))
-    return render_template('login.html', error=error, title='Login')
+		session["username"] = True
+		flash("Welcome! <username>")
+        return redirect(url_for("dashboard"))
+    return render_template("login.html", error=error, title="Login")
 
 #The Adds to the List
-@app.route('/add', methods=['GET','POST'])
+@app.route("/add", methods=["GET","POST"])
 def add():
-  if not session.get('username'):
+  if not session.get("username"):
       abort(401)
-  con = sqlite3.connect('var/data.db')
-  con.execute('INSERT INTO Bucketlist (title,day,desc) VALUES(?,?,?)', 
-            [request.form['title'], request.form['day'], request.form['desc']])
+  con = sqlite3.connect("var/data.db")
+  con.execute("INSERT INTO Bucketlist (title,day,desc) VALUES(?,?,?)", 
+            [request.form["title"], request.form["day"], request.form["desc"]])
   con.commit()
-  flash('Your Goal Has Been Added To Your List')
-  return redirect(url_for('dashboard'))
+  flash("Your Goal Has Been Added To Your List")
+  return redirect(url_for("dashboard"))
 
 #The Removes from the List
-@app.route('/remove', methods=['GET'])
+@app.route("/remove", methods=["GET"])
 def remove():
-  delete = request.args.get('bucket_id', '')
+  delete = request.args.get("bucket_id", "")
   print delete
-  con = sqlite3.connect('var/data.db')
-  con.execute('DELETE FROM Bucketlist WHERE title=?', [delete])
+  con = sqlite3.connect("var/data.db")
+  con.execute("DELETE FROM Bucketlist WHERE title=?", [delete])
   con.commit()
   cur = con.execute("select * from Bucketlist")
   row = cur.fetchall()
-  flash('Your Goal Has Been Removed From Your List')
+  flash("Your Goal Has Been Removed From Your List")
   return render_template("dashboard.html",row=row)
 
   
 #Logs Out The User from Their Account
-@app.route('/logout')
+@app.route("/logout")
 def logout():
-  session.pop('username', None)
-  flash('You Were Logged Out')
-  return redirect(url_for('login'))
+  session.pop("username", None)
+  flash("You Were Logged Out")
+  return redirect(url_for("login"))
 	
 	
 if __name__ == "__main__":
-  app.run(host='0.0.0.0', debug=True)
+  app.run(host="0.0.0.0", debug=True)
